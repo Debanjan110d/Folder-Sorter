@@ -1,10 +1,10 @@
-# 🛠️ Under the Hood: What is Used and What is Not
+# Under the Hood: What is Used and What is Not
 
 This file explains the tech stack and tools used in Folder Sorter CLI in simple, straight-forward English.
 
 ---
 
-## 🟢 What is Used (And Why)
+## What is Used (And Why)
 
 1. **Python**
    - **What it is:** The programming language used to write the entire tool.
@@ -28,7 +28,7 @@ This file explains the tech stack and tools used in Folder Sorter CLI in simple,
 
 ---
 
-## 🔴 What is NOT Used (And Why)
+## What is NOT Used (And Why)
 
 1. **No Databases (like MySQL or SQLite)**
    - **Why:** Databases require complex installations and setups. We only need to store configuration extension lists and a basic list of moved files. Simple JSON text files are fast, clean, and require zero setup.

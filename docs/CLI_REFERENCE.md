@@ -1,10 +1,10 @@
-# 📖 Folder Sorter CLI Reference Guide
+# Folder Sorter CLI Reference Guide
 
 This document provides a detailed, step-by-step explanation of the menu trees, command-line arguments, config structures, and operational features of Folder Sorter.
 
 ---
 
-## 🗺️ Execution Mode Comparison
+## Execution Mode Comparison
 
 Folder Sorter runs in two execution modes depending on how it is invoked:
 
@@ -13,7 +13,7 @@ Folder Sorter runs in two execution modes depending on how it is invoked:
 
 ---
 
-## 🧩 The "Extension Thing" Explained in Plain English
+## The "Extension Thing" Explained in Plain English
 
 ### What is a File Extension?
 When you look at files on your computer, they have names like `vacation.jpg`, `notes.txt`, or `program.py`. 
@@ -44,7 +44,7 @@ If you work with a file extension that Folder Sorter doesn't know about, you can
 
 ---
 
-## 🕹️ Interactive Menu Guide
+## Interactive Menu Guide
 
 The main menu is presented as follows:
 
@@ -139,7 +139,7 @@ Prints the complete syntax guide for direct CLI commands and options in a clean 
 
 ---
 
-## 🛠️ Direct CLI Command Reference
+## Direct CLI Command Reference
 
 For terminal scripts or automations, the commands bypass the menu interface:
 
@@ -154,7 +154,7 @@ For terminal scripts or automations, the commands bypass the menu interface:
 
 ---
 
-## 📂 Architecture and Settings Files
+## Architecture and Settings Files
 
 All application state is saved under your global user directory (`~/.folder-sorter/` or `C:\Users\YourUser\.folder-sorter/`):
 

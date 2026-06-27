@@ -1,4 +1,4 @@
-# 📁 Folder Sorter CLI
+# Folder Sorter CLI
 
 A professional cross-platform Command Line Interface (CLI) tool to organize messy folders with ease.
 
