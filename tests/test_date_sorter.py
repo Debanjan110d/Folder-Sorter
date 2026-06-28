@@ -11,12 +11,12 @@ def test_sort_by_month_execution(temp_workspace, monkeypatch):
     file2.write_text("script")
 
     # Mock getmtime to return specific timestamps
-    # 1717180800 is June 1, 2024
-    # 1704067200 is January 1, 2024
+    # 1718452800 is June 15, 2024 (timezone-independent June)
+    # 1705320000 is January 15, 2024 (timezone-independent January)
     def mock_getmtime(path):
         if "notes.txt" in str(path):
-            return 1717180800
-        return 1704067200
+            return 1718452800
+        return 1705320000
 
     monkeypatch.setattr(os.path, "getmtime", mock_getmtime)
 
@@ -32,7 +32,7 @@ def test_sort_by_month_dry_run(temp_workspace, monkeypatch):
     file1 = temp_workspace / "notes.txt"
     file1.write_text("notes")
 
-    monkeypatch.setattr(os.path, "getmtime", lambda path: 1717180800)
+    monkeypatch.setattr(os.path, "getmtime", lambda path: 1718452800)
 
     sort_by_month(str(temp_workspace), recursive=False, dry_run=True, verbose=True)
 
