@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    name: Test (Python ${{ matrix.python-version }} on ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12", "3.13" ]
+
+    steps:
+    - name: Checkout Source Code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -e .[dev]
+
+    - name: Run Test Suite
+      run: |
+        python -m pytest --cov=folder_sorter --cov-report=xml tests/
+
+    - name: Upload Coverage to Codecov (Optional)
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        fail_ci_if_error: false
+
+  build:
+    name: Build Executables (${{ matrix.os }})
+    needs: test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+    steps:
+    - name: Checkout Source Code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+        cache: 'pip'
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install pyinstaller
+        python -m pip install .
+
+    - name: Build Standalone Executable
+      run: |
+        pyinstaller --onefile --name folder-sorter folder_sorter/main.py
+
+    - name: Rename Windows Binary
+      if: matrix.os == 'windows-latest'
+      run: |
+        mv dist/folder-sorter.exe dist/folder-sorter-windows.exe
+
+    - name: Rename Linux Binary
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        mv dist/folder-sorter dist/folder-sorter-linux
+
+    - name: Rename macOS Binary
+      if: matrix.os == 'macos-latest'
+      run: |
+        mv dist/folder-sorter dist/folder-sorter-macos
+
+    - name: Upload Binary Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: folder-sorter-${{ matrix.os }}
+        path: dist/folder-sorter-*
+        retention-days: 7

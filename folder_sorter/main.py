@@ -1,5 +1,8 @@
 import sys
 import time
+import json
+import urllib.request
+from datetime import datetime
 from pathlib import Path
 from typing import Optional
 import typer
@@ -17,11 +20,70 @@ from folder_sorter.config import load_config, save_config, get_config_file
 
 __version__ = "0.1.0"
 
+def parse_version(version_str: str):
+    """Helper to parse semantic version string into a tuple of integers."""
+    clean_str = version_str.lstrip('v').split('-')[0]
+    try:
+        return tuple(int(x) for x in clean_str.split('.'))
+    except ValueError:
+        return (0, 0, 0)
+
+def check_for_updates(force: bool = False):
+    """Check for updates from GitHub. Rate limits automatic checks to once per 24 hours."""
+    from folder_sorter.config import get_app_dir
+    last_check_file = get_app_dir() / "last_update_check"
+    if not force:
+        if last_check_file.exists():
+            try:
+                last_check_time = datetime.fromisoformat(last_check_file.read_text().strip())
+                if (datetime.now() - last_check_time).total_seconds() < 86400:
+                    return
+            except Exception:
+                pass
+
+    if force:
+        console.print("[cyan]Checking for updates...[/cyan]")
+
+    try:
+        req = urllib.request.Request(
+            "https://api.github.com/repos/Debanjan110d/Folder-Sorter/releases/latest",
+            headers={"User-Agent": "Folder-Sorter-CLI"}
+        )
+        with urllib.request.urlopen(req, timeout=2.0 if force else 1.0) as response:
+            data = json.loads(response.read().decode())
+            latest_tag = data.get("tag_name", "")
+            if not latest_tag:
+                if force:
+                    console.print("[yellow]Could not retrieve latest release version.[/yellow]")
+                return
+
+            current_ver = parse_version(__version__)
+            latest_ver = parse_version(latest_tag)
+
+            # Save check timestamp
+            try:
+                last_check_file.write_text(datetime.now().isoformat())
+            except Exception:
+                pass
+
+            if latest_ver > current_ver:
+                console.print(f"\n[bold yellow]Update Available![/bold yellow] Version [green]{latest_tag}[/green] is available (you have [dim]{__version__}[/dim]).")
+                console.print("To update, run the installer script or download from GitHub Releases:")
+                console.print("  [cyan]GitHub Releases:[/cyan] https://github.com/Debanjan110d/Folder-Sorter/releases\n")
+            else:
+                if force:
+                    console.print(f"[green]Folder Sorter is up to date (version {__version__}).[/green]")
+    except Exception as e:
+        if force:
+            console.print(f"[bold red]Failed to check for updates:[/bold red] {e}")
+
 app = typer.Typer(
     name="folder-sorter",
     help="A professional cross-platform CLI tool to organize folders with ease.",
     no_args_is_help=False
 )
+
+config_app = typer.Typer(help="View or edit file extensions configuration.")
 
 console = Console()
 
@@ -43,6 +105,11 @@ def main_callback(
     )
 ):
     """A professional cross-platform CLI tool to organize folders with ease."""
+    try:
+        check_for_updates(force=False)
+    except Exception:
+        pass
+
     if ctx.invoked_subcommand is None:
         interactive_menu()
 
@@ -176,6 +243,17 @@ def interactive_menu():
             )
             input("\nPress Enter to continue...")
 
+@config_app.command(name="edit")
+def config_edit():
+    """Open the configuration JSON file in your default system text editor."""
+    config_file = get_config_file()
+    console.print(f"[bold cyan]Opening Config File:[/bold cyan] {config_file}")
+    try:
+        typer.launch(str(config_file))
+    except Exception as e:
+        console.print(f"[bold red]Failed to open config file: {e}[/bold red]")
+        console.print(f"You can manually edit the file at: [white]{config_file}[/white]")
+
 def interactive_config_menu():
     """Nested configuration settings menu loop."""
     while True:
@@ -196,11 +274,12 @@ def interactive_config_menu():
         table.add_row("1", "Show Mappings", "List current extensions grouped under each category")
         table.add_row("2", "Add Extension", "Register a new custom extension mapping (e.g. .go to Code)")
         table.add_row("3", "Remove Extension", "Deregister an extension mapping from a category")
+        table.add_row("4", "Edit Config File", "Open the config JSON file in your default system editor")
         table.add_row("0", "Back to Menu", "Return to the main Folder Sorter menu")
 
         console.print(table)
 
-        choice = Prompt.ask("\n[bold yellow]Choose config option[/bold yellow]", choices=["0", "1", "2", "3"])
+        choice = Prompt.ask("\n[bold yellow]Choose config option[/bold yellow]", choices=["0", "1", "2", "3", "4"])
 
         if choice == "0":
             break
@@ -267,6 +346,12 @@ def interactive_config_menu():
                 console.print("[bold red]Failed to save configuration.[/bold red]")
             input("\nPress Enter to continue...")
 
+        elif choice == "4":
+            console.print()
+            run_loading_spinner("Opening editor...")
+            config_edit()
+            input("\nPress Enter to continue...")
+
 @app.command(name="sort")
 def sort_command(
     directory: Path = typer.Argument(
@@ -330,8 +415,12 @@ def doctor_command():
     """Verify system diagnostics and permissions."""
     run_diagnostics()
 
+@app.command(name="update")
+def update_command():
+    """Check for updates and display upgrade instructions."""
+    check_for_updates(force=True)
+
 # Configuration Nested Typer
-config_app = typer.Typer(help="View or edit file extensions configuration.")
 app.add_typer(config_app, name="config")
 
 @config_app.callback(invoke_without_command=True)
