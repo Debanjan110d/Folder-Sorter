@@ -1,4 +1,4 @@
-name: CI
+name: CI & Production Release Pipeline
 
 on:
   push:
@@ -9,46 +9,8 @@ on:
 
 jobs:
   test:
-    name: Test (Python ${{ matrix.python-version }} on ${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ ubuntu-latest, windows-latest, macos-latest ]
-        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12", "3.13" ]
-
-    steps:
-    - name: Checkout Source Code
-      uses: actions/checkout@v4
-
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-        cache: 'pip'
-
-    - name: Install Dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install -e .[dev]
-
-    - name: Run Test Suite
-      run: |
-        python -m pytest --cov=folder_sorter --cov-report=xml tests/
-
-    - name: Upload Coverage to Codecov (Optional)
-      uses: codecov/codecov-action@v4
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        fail_ci_if_error: false
-
-  build:
-    name: Build Executables (${{ matrix.os }})
-    needs: test
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ ubuntu-latest, windows-latest, macos-latest ]
+    name: Run Test Suite
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout Source Code
       uses: actions/checkout@v4
@@ -62,31 +24,249 @@ jobs:
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
+        python -m pip install -e .[dev]
+
+    - name: Run Pytest
+      run: |
+        python -m pytest --cov=folder_sorter --cov-report=xml tests/
+
+  build-windows:
+    name: Build Windows Binary
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: windows-latest
+    steps:
+    - name: Checkout Source Code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Set Version Tag
+      shell: bash
+      run: |
+        TAG_VERSION="${GITHUB_REF_NAME#v}"
+        echo "Tag Version: $TAG_VERSION"
+        python -c "import re; content = open('folder_sorter/main.py').read(); content = re.sub(r'__version__ = \".*?\"', f'__version__ = \"$TAG_VERSION\"', content); open('folder_sorter/main.py', 'w').write(content)"
+        python -c "import re; content = open('pyproject.toml').read(); content = re.sub(r'version = \".*?\"', f'version = \"$TAG_VERSION\"', content); open('pyproject.toml', 'w').write(content)"
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
         python -m pip install pyinstaller
         python -m pip install .
 
-    - name: Build Standalone Executable
+    - name: Build Executable
       run: |
         pyinstaller --onefile --name folder-sorter folder_sorter/main.py
 
-    - name: Rename Windows Binary
-      if: matrix.os == 'windows-latest'
+    - name: Package Windows Binary
+      shell: bash
       run: |
-        mv dist/folder-sorter.exe dist/folder-sorter-windows.exe
+        cd dist
+        powershell Compress-Archive -Path folder-sorter.exe -DestinationPath folder-sorter-windows.zip
 
-    - name: Rename Linux Binary
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        mv dist/folder-sorter dist/folder-sorter-linux
-
-    - name: Rename macOS Binary
-      if: matrix.os == 'macos-latest'
-      run: |
-        mv dist/folder-sorter dist/folder-sorter-macos
-
-    - name: Upload Binary Artifact
+    - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: folder-sorter-${{ matrix.os }}
-        path: dist/folder-sorter-*
-        retention-days: 7
+        name: windows-binary
+        path: dist/folder-sorter-windows.zip
+
+  build-linux-x64:
+    name: Build Linux x64 Binary
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Source Code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Set Version Tag
+      run: |
+        TAG_VERSION="${GITHUB_REF_NAME#v}"
+        python3 -c "import re; content = open('folder_sorter/main.py').read(); content = re.sub(r'__version__ = \".*?\"', f'__version__ = \"$TAG_VERSION\"', content); open('folder_sorter/main.py', 'w').write(content)"
+        python3 -c "import re; content = open('pyproject.toml').read(); content = re.sub(r'version = \".*?\"', f'version = \"$TAG_VERSION\"', content); open('pyproject.toml', 'w').write(content)"
+
+    - name: Install Dependencies
+      run: |
+        python3 -m pip install --upgrade pip
+        python3 -m pip install pyinstaller
+        python3 -m pip install .
+
+    - name: Build Executable
+      run: |
+        pyinstaller --onefile --name folder-sorter folder_sorter/main.py
+
+    - name: Package Linux Binary
+      run: |
+        cd dist
+        tar -czf folder-sorter-linux.tar.gz folder-sorter
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: linux-x64-binary
+        path: dist/folder-sorter-linux.tar.gz
+
+  build-linux-arm64:
+    name: Build Linux ARM64 Binary
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Source Code
+      uses: actions/checkout@v4
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+
+    - name: Set Version Tag
+      run: |
+        TAG_VERSION="${GITHUB_REF_NAME#v}"
+        python3 -c "import re; content = open('folder_sorter/main.py').read(); content = re.sub(r'__version__ = \".*?\"', f'__version__ = \"$TAG_VERSION\"', content); open('folder_sorter/main.py', 'w').write(content)"
+        python3 -c "import re; content = open('pyproject.toml').read(); content = re.sub(r'version = \".*?\"', f'version = \"$TAG_VERSION\"', content); open('pyproject.toml', 'w').write(content)"
+
+    - name: Build ARM64 Executable via Docker QEMU
+      run: |
+        docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+        docker run --rm -v ${{ github.workspace }}:/src -w /src --platform linux/arm64 python:3.11-slim bash -c "
+          apt-get update && apt-get install -y gcc make &&
+          pip install --upgrade pip &&
+          pip install pyinstaller pillow typer rich &&
+          pip install . &&
+          pyinstaller --onefile --name folder-sorter folder_sorter/main.py &&
+          tar -czf dist/folder-sorter-linux-arm64.tar.gz -C dist folder-sorter
+        "
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: linux-arm64-binary
+        path: dist/folder-sorter-linux-arm64.tar.gz
+
+  build-macos:
+    name: Build macOS Universal2 Binary
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: macos-latest
+    steps:
+    - name: Checkout Source Code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Set Version Tag
+      run: |
+        TAG_VERSION="${GITHUB_REF_NAME#v}"
+        python3 -c "import re; content = open('folder_sorter/main.py').read(); content = re.sub(r'__version__ = \".*?\"', f'__version__ = \"$TAG_VERSION\"', content); open('folder_sorter/main.py', 'w').write(content)"
+        python3 -c "import re; content = open('pyproject.toml').read(); content = re.sub(r'version = \".*?\"', f'version = \"$TAG_VERSION\"', content); open('pyproject.toml', 'w').write(content)"
+
+    - name: Install Dependencies
+      run: |
+        python3 -m pip install --upgrade pip
+        python3 -m pip install pyinstaller
+        python3 -m pip install .
+
+    - name: Build Universal2 Executable
+      run: |
+        # PyInstaller supports creating universal2 binaries natively on macOS
+        pyinstaller --onefile --name folder-sorter --target-arch universal2 folder_sorter/main.py
+
+    - name: Package macOS Binary
+      run: |
+        cd dist
+        tar -czf folder-sorter-macos.tar.gz folder-sorter
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: macos-binary
+        path: dist/folder-sorter-macos.tar.gz
+
+  publish-release:
+    name: Create GitHub Release
+    needs: [build-windows, build-linux-x64, build-linux-arm64, build-macos]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: Checkout Source Code
+      uses: actions/checkout@v4
+
+    - name: Download Windows Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: windows-binary
+        path: release_assets
+
+    - name: Download Linux x64 Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: linux-x64-binary
+        path: release_assets
+
+    - name: Download Linux ARM64 Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: linux-arm64-binary
+        path: release_assets
+
+    - name: Download macOS Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: macos-binary
+        path: release_assets
+
+    - name: Generate SHA256 Checksums
+      run: |
+        cd release_assets
+        sha256sum folder-sorter-* > sha256sums.txt
+
+    - name: Create Release and Upload Assets
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          release_assets/folder-sorter-windows.zip
+          release_assets/folder-sorter-linux.tar.gz
+          release_assets/folder-sorter-linux-arm64.tar.gz
+          release_assets/folder-sorter-macos.tar.gz
+          release_assets/sha256sums.txt
+        generate_release_notes: true
+
+  deploy-pages:
+    name: Publish Installers to GitHub Pages
+    needs: publish-release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: Checkout Source Code
+      uses: actions/checkout@v4
+
+    - name: Prepare Pages Deployment Directory
+      run: |
+        mkdir -p deploy_dir
+        cp install.sh deploy_dir/
+        cp install.ps1 deploy_dir/
+        cp uninstall.sh deploy_dir/
+        cp uninstall.ps1 deploy_dir/
+
+    - name: Deploy to GitHub Pages (gh-pages branch)
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: deploy_dir
+        publish_branch: gh-pages
+        destination_dir: .
+        allow_empty_commit: true
+        keep_files: false
