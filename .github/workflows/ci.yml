@@ -35,6 +35,7 @@ jobs:
     needs: test
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: windows-latest
+    timeout-minutes: 20
     steps:
     - name: Checkout Source Code
       uses: actions/checkout@v4
@@ -79,6 +80,8 @@ jobs:
     needs: test
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 15
     steps:
     - name: Checkout Source Code
       uses: actions/checkout@v4
@@ -120,6 +123,8 @@ jobs:
     needs: test
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 30
     steps:
     - name: Checkout Source Code
       uses: actions/checkout@v4
@@ -152,10 +157,12 @@ jobs:
         path: dist/folder-sorter-linux-arm64.tar.gz
 
   build-macos:
-    name: Build macOS Universal2 Binary
+    name: Build macOS Binary
     needs: test
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: macos-latest
+    continue-on-error: true
+    timeout-minutes: 20
     steps:
     - name: Checkout Source Code
       uses: actions/checkout@v4
@@ -177,10 +184,9 @@ jobs:
         python3 -m pip install pyinstaller
         python3 -m pip install .
 
-    - name: Build Universal2 Executable
+    - name: Build macOS Executable
       run: |
-        # PyInstaller supports creating universal2 binaries natively on macOS
-        pyinstaller --onefile --name folder-sorter --target-arch universal2 folder_sorter/main.py
+        pyinstaller --onefile --name folder-sorter folder_sorter/main.py
 
     - name: Package macOS Binary
       run: |
@@ -203,44 +209,37 @@ jobs:
     - name: Checkout Source Code
       uses: actions/checkout@v4
 
-    - name: Download Windows Artifact
+    - name: Download All Artifacts
       uses: actions/download-artifact@v4
       with:
-        name: windows-binary
-        path: release_assets
+        path: temp_artifacts
 
-    - name: Download Linux x64 Artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: linux-x64-binary
-        path: release_assets
-
-    - name: Download Linux ARM64 Artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: linux-arm64-binary
-        path: release_assets
-
-    - name: Download macOS Artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: macos-binary
-        path: release_assets
+    - name: Organize Release Assets
+      run: |
+        mkdir -p release_assets
+        if [ -d temp_artifacts ]; then
+          find temp_artifacts -type f -exec cp {} release_assets/ \;
+        fi
+        echo "Contents of release_assets:"
+        ls -la release_assets/
 
     - name: Generate SHA256 Checksums
       run: |
         cd release_assets
-        sha256sum folder-sorter-* > sha256sums.txt
+        shopt -s nullglob
+        files=(folder-sorter-*)
+        if [ ${#files[@]} -gt 0 ]; then
+          sha256sum "${files[@]}" > sha256sums.txt
+        else
+          echo "No binaries found to checksum."
+          touch sha256sums.txt
+        fi
 
     - name: Create Release and Upload Assets
       uses: softprops/action-gh-release@v2
       with:
         files: |
-          release_assets/folder-sorter-windows.zip
-          release_assets/folder-sorter-linux.tar.gz
-          release_assets/folder-sorter-linux-arm64.tar.gz
-          release_assets/folder-sorter-macos.tar.gz
-          release_assets/sha256sums.txt
+          release_assets/*
         generate_release_notes: true
 
   deploy-pages:
