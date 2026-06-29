@@ -40,7 +40,15 @@ def run_diagnostics():
     table.add_row("Python Version", py_ver, py_status)
 
     # 2. Operating System
-    os_info = f"{platform.system()} {platform.release()} ({platform.machine()})"
+    os_name = platform.system()
+    os_release = platform.release()
+    if os_name == "Windows" and os_release == "10":
+        try:
+            if sys.getwindowsversion().build >= 22000:
+                os_release = "11"
+        except AttributeError:
+            pass
+    os_info = f"{os_name} {os_release} ({platform.machine()})"
     table.add_row("Operating System", os_info, "[bold green]PASS[/bold green]")
 
     # 3. Global Config Directory Path

@@ -88,7 +88,7 @@ if (!$IsAlreadyInPath) {
 # Install shell completions for powershell
 Write-Host "Setting up PowerShell command autocompletions..."
 try {
-    & $ExecutablePath --install-completion powershell
+    & $ExecutablePath --install-completion powershell 2>$null
 } catch {
     # Fail-safe
 }
