@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-06-29
+
+### Added
+- Migrated installer script and website hosting from GitHub Pages to Vercel (`folder-sorter.vercel.app`).
+- Created a premium, developer-focused Next.js/Tailwind CSS landing page with documentation, roadmap, and copy-install blocks.
+- Set up Vercel to serve `install.ps1`, `install.sh`, `uninstall.ps1`, and `uninstall.sh` directly from the `/public` static folder.
+- Removed all GitHub Pages jobs and dependencies from the GitHub Actions pipeline.
+
 ## [1.0.2] - 2026-06-29
 
 ### Added

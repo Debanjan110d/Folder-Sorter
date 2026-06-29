@@ -18,7 +18,7 @@ from folder_sorter.undo import undo_last_sort
 from folder_sorter.doctor import run_diagnostics
 from folder_sorter.config import load_config, save_config, get_config_file
 
-__version__ = "1.0.2"
+__version__ = "1.0.3"
 
 def parse_version(version_str: str):
     """Helper to parse semantic version string into a tuple of integers."""
@@ -50,9 +50,9 @@ def check_for_updates():
                 console.print(f"\n[bold yellow]Update Available![/bold yellow] Version [green]{latest_tag}[/green] is available (you have [dim]{__version__}[/dim]).")
                 console.print("\nTo upgrade Folder Sorter to the latest version, run:")
                 console.print("[bold cyan]Windows (PowerShell):[/bold cyan]")
-                console.print("  [white]irm https://debanjan110d.github.io/Folder-Sorter/install.ps1 | iex[/white]")
+                console.print("  [white]irm https://folder-sorter.vercel.app/install.ps1 | iex[/white]")
                 console.print("[bold cyan]macOS / Linux:[/bold cyan]")
-                console.print("  [white]curl -fsSL https://debanjan110d.github.io/Folder-Sorter/install.sh | bash[/white]\n")
+                console.print("  [white]curl -fsSL https://folder-sorter.vercel.app/install.sh | bash[/white]\n")
             else:
                 console.print(f"[green]Folder Sorter is up to date (version {__version__}).[/green]")
     except Exception as e:

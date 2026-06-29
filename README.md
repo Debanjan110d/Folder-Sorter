@@ -38,7 +38,7 @@ Apple Silicon    🚧 Planned
 To install Folder Sorter CLI on Windows without needing Python, Git, or pip, run the following command in PowerShell (as a normal user, no administrator permissions required):
 
 ```powershell
-irm https://debanjan110d.github.io/Folder-Sorter/install.ps1 | iex
+irm https://folder-sorter.vercel.app/install.ps1 | iex
 ```
 
 This command automatically downloads the latest stable Windows release, extracts the binary to `%LOCALAPPDATA%\FolderSorter\`, adds it to your user `PATH`, runs system diagnostics, and registers command autocompletions for PowerShell.

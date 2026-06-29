@@ -247,30 +247,3 @@ jobs:
           release_assets/*
         generate_release_notes: true
 
-  deploy-pages:
-    name: Publish Installers to GitHub Pages
-    needs: publish-release
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-    - name: Checkout Source Code
-      uses: actions/checkout@v4
-
-    - name: Prepare Pages Deployment Directory
-      run: |
-        mkdir -p deploy_dir
-        cp install.sh deploy_dir/
-        cp install.ps1 deploy_dir/
-        cp uninstall.sh deploy_dir/
-        cp uninstall.ps1 deploy_dir/
-
-    - name: Deploy to GitHub Pages (gh-pages branch)
-      uses: peaceiris/actions-gh-pages@v4
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: deploy_dir
-        publish_branch: gh-pages
-        destination_dir: .
-        allow_empty_commit: true
-        keep_files: false
