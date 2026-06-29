@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
-import { Terminal, Settings, ShieldCheck, Undo2, Play, BookOpen, AlertCircle, HelpCircle, Key, Cpu, History } from "lucide-react";
+import { Terminal, Settings, ShieldCheck, Undo2, Play, BookOpen, AlertCircle, HelpCircle, Key, Cpu, History, Users, Scale } from "lucide-react";
 
 export default function DocsPage() {
   const [activeSection, setActiveSection] = useState("getting-started");
@@ -16,6 +16,8 @@ export default function DocsPage() {
     { id: "doctor", label: "Doctor Diagnostics", icon: ShieldCheck },
     { id: "architecture", label: "Tech Stack & Details", icon: Cpu },
     { id: "changelog", label: "Release Changelog", icon: History },
+    { id: "contributing", label: "Contribution Guidelines", icon: Users },
+    { id: "code-of-conduct", label: "Code of Conduct", icon: Scale },
     { id: "faq", label: "Frequently Asked Questions", icon: HelpCircle },
     { id: "troubleshooting", label: "Troubleshooting & PATH", icon: AlertCircle }
   ];
@@ -148,7 +150,7 @@ export default function DocsPage() {
                   Mistakes happen. If you sorted the wrong directory, Folder Sorter has an integrated database safety net. When files are moved, a record containing the old path, new path, and transaction timestamp is logged into a local SQLite database under `~/.folder-sorter/history.json` or `history.db`.
                 </p>
                 <div className="border border-indigo-500/20 bg-indigo-500/5 rounded-xl p-5 text-sm text-gray-400 leading-relaxed">
-                  <span className="font-bold text-white block mb-1">💡 Idempotent Safety</span>
+                  <span className="font-bold text-white block mb-1">Idempotent Safety</span>
                   To run a dry run of the undo operation, run `folder-sorter undo --dry-run`. This shows you what files would move without actually changing the filesystem, confirming it's safe to run the actual restoration.
                 </div>
               </section>
@@ -253,6 +255,67 @@ export default function DocsPage() {
                       <li>Polished Rich table layouts, spinners, and help texts</li>
                       <li>Implemented transaction log undo capabilities</li>
                     </ul>
+                  </div>
+                </div>
+              </section>
+
+              {/* Contribution Guidelines */}
+              <section id="contributing" className="scroll-mt-24">
+                <h2 className="text-2xl font-extrabold text-white mb-4">Contribution Guidelines</h2>
+                <p className="text-gray-400 leading-relaxed mb-6">
+                  Folder Sorter is an open-source project and we welcome contributions from everyone. Whether you are fixing a bug, adding mapping configurations for new file extensions, or rewriting parts of the documentation, we appreciate your help.
+                </p>
+                <div className="space-y-6">
+                  <div className="rounded-xl border border-gray-800 bg-[#070b16] p-6">
+                    <h3 className="text-lg font-bold text-white mb-3">Quick Contribution Steps</h3>
+                    <ol className="space-y-3 text-sm text-gray-400 list-decimal list-inside">
+                      <li>
+                        <strong className="text-gray-200">Fork and Clone:</strong> Fork the repository on GitHub and clone it to your local machine.
+                      </li>
+                      <li>
+                        <strong className="text-gray-200">Install Dependencies:</strong> Run <code className="text-indigo-400 font-mono">pip install -e .</code> and install developer requirements from <code className="text-indigo-400 font-mono">requirements-dev.txt</code>.
+                      </li>
+                      <li>
+                        <strong className="text-gray-200">Create a Branch:</strong> Work on a separate feature branch instead of making changes directly to the main branch.
+                      </li>
+                      <li>
+                        <strong className="text-gray-200">Run Tests:</strong> Verify your changes by running the test suite with the <code className="text-indigo-400 font-mono">pytest</code> command.
+                      </li>
+                      <li>
+                        <strong className="text-gray-200">Open a Pull Request:</strong> Push your branch to GitHub and open a pull request. Make sure to describe the modifications in detail.
+                      </li>
+                    </ol>
+                  </div>
+
+                  <div className="rounded-xl border border-gray-800 bg-[#070b16] p-6">
+                    <h3 className="text-lg font-bold text-white mb-3">Community Issue Labels & Boards</h3>
+                    <p className="text-sm text-gray-400 mb-4">
+                      We use labels and project boards to make work visible and structured for contributors:
+                    </p>
+                    <ul className="space-y-2 text-sm text-gray-400 list-disc list-inside">
+                      <li><strong className="text-gray-200">bug:</strong> Confirmed issues where the tool behaves incorrectly.</li>
+                      <li><strong className="text-gray-200">enhancement:</strong> Requests for new features or user interface improvements.</li>
+                      <li><strong className="text-gray-200">good first issue:</strong> Welcoming, isolated bugs suitable for new developers.</li>
+                      <li><strong className="text-gray-200">Project Board:</strong> We track active items in four stages: Todo, In Progress, Testing, and Done.</li>
+                    </ul>
+                  </div>
+                </div>
+              </section>
+
+              {/* Code of Conduct */}
+              <section id="code-of-conduct" className="scroll-mt-24">
+                <h2 className="text-2xl font-extrabold text-white mb-4">Code of Conduct</h2>
+                <p className="text-gray-400 leading-relaxed mb-6">
+                  To ensure that the Folder Sorter community is welcoming, respectful, and safe for everyone, we ask all contributors to follow our Code of Conduct pledge:
+                </p>
+                <div className="bg-[#0b1021] border border-gray-850 rounded-xl p-5 space-y-4 text-sm text-gray-400 leading-relaxed">
+                  <div>
+                    <strong className="text-white block mb-1">Our Pledge</strong>
+                    We pledge to make participation in our community a harassment-free experience for everyone, regardless of age, background, visibility or level of experience.
+                  </div>
+                  <div>
+                    <strong className="text-white block mb-1">Our Standards</strong>
+                    Contributors are expected to use welcoming and inclusive language, remain respectful of differing viewpoints, accept constructive criticism, and show empathy toward other community members. Trolling, insults, and harassment will not be tolerated.
                   </div>
                 </div>
               </section>

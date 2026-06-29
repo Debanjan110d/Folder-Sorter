@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { FolderOpen, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,8 +26,8 @@ export default function Navbar() {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-2 font-bold text-white transition-opacity hover:opacity-90">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/20">
-                <FolderOpen className="h-5 w-5 text-white" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg overflow-hidden bg-gradient-to-tr from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/20">
+                <img src="/folder_sorter_icon.png" alt="Folder Sorter Logo" className="h-full w-full object-cover" />
               </div>
               <span className="bg-gradient-to-r from-white via-gray-100 to-gray-400 bg-clip-text text-xl tracking-tight text-transparent">
                 Folder Sorter

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { FolderOpen } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -8,8 +7,8 @@ export default function Footer() {
         <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-tr from-indigo-500 to-purple-600">
-              <FolderOpen className="h-3 w-3 text-white" />
+            <div className="flex h-6 w-6 items-center justify-center rounded-md overflow-hidden bg-gradient-to-tr from-indigo-500 to-purple-600">
+              <img src="/folder_sorter_icon.png" alt="Folder Sorter Logo" className="h-full w-full object-cover" />
             </div>
             <span className="font-semibold text-gray-400 text-sm">Folder Sorter</span>
           </div>
