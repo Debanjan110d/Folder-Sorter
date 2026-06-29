@@ -169,9 +169,8 @@ export default function InstallPage() {
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Step 1: Clone the GitHub Repository</h3>
-                    <pre className="rounded bg-black/40 p-3 text-xs text-gray-300 border border-gray-900">
-                      git clone https://github.com/Debanjan110d/Folder-Sorter.git
-                      {"\n"}cd Folder-Sorter
+                    <pre className="rounded bg-black/40 p-3 text-xs text-gray-300 border border-gray-900 overflow-x-auto font-mono">
+                      {`git clone https://github.com/Debanjan110d/Folder-Sorter.git\ncd Folder-Sorter`}
                     </pre>
                   </div>
 
@@ -190,9 +189,7 @@ export default function InstallPage() {
 
                   <div>
                     <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Step 3: Run Self-Diagnostics Doctor</h3>
-                    <pre className="rounded bg-black/40 p-3 text-xs text-gray-300 border border-gray-900">
-                      folder-sorter doctor
-                    </pre>
+                    <pre className="rounded bg-black/40 p-3 text-xs text-gray-300 border border-gray-900 overflow-x-auto font-mono">folder-sorter doctor</pre>
                   </div>
                 </div>
               </div>

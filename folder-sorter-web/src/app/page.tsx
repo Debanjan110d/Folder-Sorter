@@ -67,7 +67,7 @@ export default function Home() {
               {downloads !== null && (
                 <>
                   <span className="h-3 w-[1px] bg-indigo-500/30" />
-                  <span className="text-gray-400 font-medium">{downloads + 120} Installs</span>
+                  <span className="text-gray-400 font-medium">{downloads} Installs</span>
                 </>
               )}
             </div>

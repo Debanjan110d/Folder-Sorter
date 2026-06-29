@@ -69,9 +69,7 @@ export default function DocsPage() {
                   <p className="text-gray-400 text-sm mb-4">
                     After completing the one-command installation, run the utility without arguments to enter the **Interactive Menu Mode**:
                   </p>
-                  <pre className="rounded bg-black/40 p-3 text-xs text-indigo-400 border border-gray-900 font-mono">
-                    folder-sorter
-                  </pre>
+                  <pre className="rounded bg-black/40 p-3 text-xs text-indigo-400 border border-gray-900 font-mono">folder-sorter</pre>
                 </div>
                 <p className="text-gray-400 leading-relaxed">
                   Interactive mode guides you through selecting target directories, configuring recursive subdirectory traversal, and performing dry runs without having to remember any command-line options.
@@ -130,21 +128,15 @@ export default function DocsPage() {
                 <div className="bg-[#0b1021] border border-gray-850 rounded-xl p-5 space-y-4">
                   <div>
                     <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-2">View active mapping rules:</h4>
-                    <pre className="rounded bg-black/40 p-2.5 text-xs text-gray-300 font-mono border border-gray-900">
-                      folder-sorter config show
-                    </pre>
+                    <pre className="rounded bg-black/40 p-2.5 text-xs text-gray-300 font-mono border border-gray-900">folder-sorter config show</pre>
                   </div>
                   <div>
                     <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Create a new custom category:</h4>
-                    <pre className="rounded bg-black/40 p-2.5 text-xs text-gray-300 font-mono border border-gray-900">
-                      folder-sorter config add-category Music
-                    </pre>
+                    <pre className="rounded bg-black/40 p-2.5 text-xs text-gray-300 font-mono border border-gray-900">folder-sorter config add-category Music</pre>
                   </div>
                   <div>
                     <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Add a new extension mapping:</h4>
-                    <pre className="rounded bg-black/40 p-2.5 text-xs text-gray-300 font-mono border border-gray-900">
-                      folder-sorter config add Music .mp3
-                    </pre>
+                    <pre className="rounded bg-black/40 p-2.5 text-xs text-gray-300 font-mono border border-gray-900">folder-sorter config add Music .mp3</pre>
                   </div>
                 </div>
               </section>
@@ -167,9 +159,7 @@ export default function DocsPage() {
                 <p className="text-gray-400 leading-relaxed mb-6">
                   If Folder Sorter fails or throws permission errors, run the diagnostic doctor:
                 </p>
-                <pre className="rounded bg-black/40 p-4 text-sm text-white font-mono border border-gray-900 mb-6">
-                  folder-sorter doctor
-                </pre>
+                <pre className="rounded bg-black/40 p-4 text-sm text-white font-mono border border-gray-900 mb-6">folder-sorter doctor</pre>
                 <p className="text-gray-400 leading-relaxed">
                   The doctor command performs a validation checklist on Python runtime version, folder read/write permissions, database consistency, and additional libraries (Pillow for image resolution sorting).
                 </p>
