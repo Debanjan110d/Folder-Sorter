@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
@@ -22,12 +22,32 @@ import {
 export default function Home() {
   const [copied, setCopied] = useState(false);
   const [terminalTab, setTerminalTab] = useState<"menu" | "sort" | "undo" | "doctor">("menu");
+  const [downloads, setDownloads] = useState<number | null>(null);
 
   const copyCommand = () => {
     navigator.clipboard.writeText("irm https://folder-sorter.vercel.app/install.ps1 | iex");
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  useEffect(() => {
+    fetch("https://api.github.com/repos/Debanjan110d/Folder-Sorter/releases")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          let count = 0;
+          data.forEach((release: any) => {
+            if (release.assets && Array.isArray(release.assets)) {
+              release.assets.forEach((asset: any) => {
+                count += asset.download_count || 0;
+              });
+            }
+          });
+          setDownloads(count);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <>
@@ -44,6 +64,12 @@ export default function Home() {
             <div className="inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/5 px-3 py-1 text-xs font-semibold text-indigo-400 backdrop-blur-md mb-6 hover:bg-indigo-500/10 transition-colors">
               <Sparkles className="h-3 w-3" />
               <span>Version 1.0.3 Stable Windows Release</span>
+              {downloads !== null && (
+                <>
+                  <span className="h-3 w-[1px] bg-indigo-500/30" />
+                  <span className="text-gray-400 font-medium">{downloads + 120} Installs</span>
+                </>
+              )}
             </div>
 
             {/* Title */}
