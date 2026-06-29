@@ -41,7 +41,16 @@ To install Folder Sorter CLI on Windows without needing Python, Git, or pip, run
 irm https://folder-sorter.vercel.app/install.ps1 | iex
 ```
 
-This command automatically downloads the latest stable Windows release, extracts the binary to `%LOCALAPPDATA%\FolderSorter\`, adds it to your user `PATH`, runs system diagnostics, and registers command autocompletions for PowerShell.
+#### How the One-Command Installer Works:
+- **`irm` (`Invoke-RestMethod`)** fetches the PowerShell installer script from the Vercel-hosted domain: `https://folder-sorter.vercel.app/install.ps1`.
+- **`iex` (`Invoke-Expression`)** executes the fetched script in your current PowerShell session.
+- **Under the Hood:**
+  1. The script queries the GitHub Releases API to find the latest stable tag (`v1.0.3`).
+  2. It downloads the pre-compiled `folder-sorter-windows.zip` directly from GitHub Release assets.
+  3. It extracts the `folder-sorter.exe` binary and places it inside your local app data directory: `%LOCALAPPDATA%\FolderSorter\`.
+  4. It automatically appends `%LOCALAPPDATA%\FolderSorter` to your User `PATH` environment variable if it isn't already there.
+  5. It registers command-line autocompletions for PowerShell.
+  6. It runs a diagnostic health check (`folder-sorter doctor`) to verify your system is ready.
 
 ### Alternative Installation (Development Mode)
 
