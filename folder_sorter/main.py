@@ -250,12 +250,13 @@ def interactive_config_menu():
         table.add_row("1", "Show Mappings", "List current extensions grouped under each category")
         table.add_row("2", "Add Extension", "Register a new custom extension mapping (e.g. .go to Code)")
         table.add_row("3", "Remove Extension", "Deregister an extension mapping from a category")
-        table.add_row("4", "Edit Config File", "Open the config JSON file in your default system editor")
+        table.add_row("4", "Add Category", "Create a new custom category (e.g. Music, Databases)")
+        table.add_row("5", "Edit Config File", "Open the config JSON file in your default system editor")
         table.add_row("0", "Back to Menu", "Return to the main Folder Sorter menu")
 
         console.print(table)
 
-        choice = Prompt.ask("\n[bold yellow]Choose config option[/bold yellow]", choices=["0", "1", "2", "3", "4"])
+        choice = Prompt.ask("\n[bold yellow]Choose config option[/bold yellow]", choices=["0", "1", "2", "3", "4", "5"])
 
         if choice == "0":
             break
@@ -323,6 +324,34 @@ def interactive_config_menu():
             input("\nPress Enter to continue...")
 
         elif choice == "4":
+            category = Prompt.ask("\nEnter new category name (or 0 to cancel)").strip()
+            if category == "0" or not category:
+                console.print("[yellow]Operation cancelled.[/yellow]")
+                input("\nPress Enter to continue...")
+                continue
+
+            config_data = load_config()
+            categories = config_data.get("categories", {})
+
+            matched = False
+            for cat in categories.keys():
+                if cat.lower() == category.lower():
+                    matched = True
+                    break
+
+            if matched:
+                console.print(f"[bold red]Category '{category}' already exists.[/bold red]")
+            else:
+                console.print()
+                run_loading_spinner("Creating category...")
+                categories[category] = []
+                if save_config(categories):
+                    console.print(f"[bold green]Successfully added new category '{category}'.[/bold green]")
+                else:
+                    console.print("[bold red]Failed to save configuration.[/bold red]")
+            input("\nPress Enter to continue...")
+
+        elif choice == "5":
             console.print()
             run_loading_spinner("Opening editor...")
             config_edit()
@@ -487,6 +516,25 @@ def config_remove(
     categories[matched_category].remove(extension)
     if save_config(categories):
         console.print(f"[bold green]Removed extension '{extension}' from category '{matched_category}'.[/bold green]")
+    else:
+        console.print("[bold red]Failed to save configuration.[/bold red]")
+
+@config_app.command(name="add-category")
+def config_add_category(
+    category: str = typer.Argument(..., help="Name of the new category to add (e.g. Music, Databases)")
+):
+    """Create a new custom category."""
+    config_data = load_config()
+    categories = config_data.get("categories", {})
+
+    for cat in categories.keys():
+        if cat.lower() == category.lower():
+            console.print(f"[bold red]Category '{cat}' already exists.[/bold red]")
+            raise typer.Exit(code=1)
+
+    categories[category] = []
+    if save_config(categories):
+        console.print(f"[bold green]Successfully added new category '{category}'.[/bold green]")
     else:
         console.print("[bold red]Failed to save configuration.[/bold red]")
 

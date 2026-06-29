@@ -108,3 +108,14 @@ def test_update_command_newer_version(monkeypatch):
     assert result.exit_code == 0
     assert "Update Available!" in result.stdout
     assert "v1.2.0" in result.stdout
+
+def test_config_add_category_command():
+    # Verify add-category
+    result_add = runner.invoke(app, ["config", "add-category", "Music"])
+    assert result_add.exit_code == 0
+    assert "Successfully added new category 'Music'" in result_add.stdout
+
+    # Verify duplicate add-category check
+    result_dup = runner.invoke(app, ["config", "add-category", "Music"])
+    assert result_dup.exit_code == 1
+    assert "Category 'Music' already exists" in result_dup.stdout

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
-import { Terminal, Settings, ShieldCheck, Undo2, Play, BookOpen, AlertCircle, HelpCircle, Key } from "lucide-react";
+import { Terminal, Settings, ShieldCheck, Undo2, Play, BookOpen, AlertCircle, HelpCircle, Key, Cpu, History } from "lucide-react";
 
 export default function DocsPage() {
   const [activeSection, setActiveSection] = useState("getting-started");
@@ -14,6 +14,8 @@ export default function DocsPage() {
     { id: "configuration", label: "Custom Configuration", icon: Settings },
     { id: "undo", label: "Undo System", icon: Undo2 },
     { id: "doctor", label: "Doctor Diagnostics", icon: ShieldCheck },
+    { id: "architecture", label: "Tech Stack & Details", icon: Cpu },
+    { id: "changelog", label: "Release Changelog", icon: History },
     { id: "faq", label: "Frequently Asked Questions", icon: HelpCircle },
     { id: "troubleshooting", label: "Troubleshooting & PATH", icon: AlertCircle }
   ];
@@ -107,7 +109,7 @@ export default function DocsPage() {
 
                   <div className="border-l-2 border-cyan-500 pl-4 space-y-2">
                     <h3 className="font-bold text-white text-md">config</h3>
-                    <p className="text-gray-400 text-sm">Manage configuration variables. Subcommands: <code className="text-gray-300">show</code>, <code className="text-gray-300">add [category] [extension]</code>, <code className="text-gray-300">remove [category] [extension]</code>.</p>
+                    <p className="text-gray-400 text-sm">Manage configuration variables. Subcommands: <code className="text-gray-300">show</code>, <code className="text-gray-300">add [category] [extension]</code>, <code className="text-gray-300">remove [category] [extension]</code>, <code className="text-gray-300">add-category [category]</code>.</p>
                   </div>
                 </div>
               </section>
@@ -116,7 +118,7 @@ export default function DocsPage() {
               <section id="configuration" className="scroll-mt-24">
                 <h2 className="text-2xl font-extrabold text-white mb-4">Custom Configuration</h2>
                 <p className="text-gray-400 leading-relaxed mb-4">
-                  Folder Sorter uses default extension mappings to group files, but you can dynamically customize mappings using CLI commands or by editing the JSON configuration file directly.
+                  Folder Sorter uses default extension mappings to group files, but you can dynamically customize mappings using CLI commands, the interactive settings menu, or by editing the JSON configuration file directly.
                 </p>
                 <p className="text-gray-400 leading-relaxed mb-6">
                   Configurations are saved globally under your home directory:
@@ -133,9 +135,15 @@ export default function DocsPage() {
                     </pre>
                   </div>
                   <div>
+                    <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Create a new custom category:</h4>
+                    <pre className="rounded bg-black/40 p-2.5 text-xs text-gray-300 font-mono border border-gray-900">
+                      folder-sorter config add-category Music
+                    </pre>
+                  </div>
+                  <div>
                     <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Add a new extension mapping:</h4>
                     <pre className="rounded bg-black/40 p-2.5 text-xs text-gray-300 font-mono border border-gray-900">
-                      folder-sorter config add Code .go
+                      folder-sorter config add Music .mp3
                     </pre>
                   </div>
                 </div>
@@ -165,6 +173,98 @@ export default function DocsPage() {
                 <p className="text-gray-400 leading-relaxed">
                   The doctor command performs a validation checklist on Python runtime version, folder read/write permissions, database consistency, and additional libraries (Pillow for image resolution sorting).
                 </p>
+              </section>
+
+              {/* Architecture & Tech Stack */}
+              <section id="architecture" className="scroll-mt-24">
+                <h2 className="text-2xl font-extrabold text-white mb-4">Tech Stack & Details</h2>
+                <p className="text-gray-400 leading-relaxed mb-6">
+                  Here is an explanation of the core technologies under the hood of Folder Sorter, keeping it transparent, lightweight, and local.
+                </p>
+
+                <div className="space-y-6">
+                  <div className="rounded-xl border border-gray-800 bg-[#070b16] p-6">
+                    <h3 className="text-lg font-bold text-white mb-4">What is Used (and Why)</h3>
+                    <ul className="space-y-4 text-sm text-gray-400">
+                      <li>
+                        <strong className="text-gray-200">1. Python:</strong> The entire tool is written in Python, allowing robust cross-platform file manipulation out-of-the-box.
+                      </li>
+                      <li>
+                        <strong className="text-gray-200">2. Typer:</strong> Standardized terminal command library that automatically maps function arguments into flags (like <code className="text-indigo-400 font-mono">--recursive</code> or <code className="text-indigo-400 font-mono">--dry-run</code>).
+                      </li>
+                      <li>
+                        <strong className="text-gray-200">3. Rich:</strong> Builds beautiful, colored panels, progress bars, tables, and loading spinners directly inside command lines.
+                      </li>
+                      <li>
+                        <strong className="text-gray-200">4. Pillow:</strong> Image processing framework used to examine image dimensions (resolution pixels) to group them into <code className="text-indigo-400 font-mono">4K</code>, <code className="text-indigo-400 font-mono">1080p</code>, or <code className="text-indigo-400 font-mono">720p</code> folders.
+                      </li>
+                      <li>
+                        <strong className="text-gray-200">5. JSON Storage:</strong> Utilizes flat text JSON configurations (`config.json` and `history.json`) for speed, portability, and zero-dependency reads/writes.
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="rounded-xl border border-red-950/20 bg-red-950/5 p-6">
+                    <h3 className="text-lg font-bold text-white mb-4">What is NOT Used (and Why)</h3>
+                    <ul className="space-y-4 text-sm text-gray-400">
+                      <li>
+                        <strong className="text-gray-200">1. No heavy SQL databases:</strong> Flat JSON structures require zero local installations or server setup, keeping Folder Sorter's memory and CPU footprint minimal.
+                      </li>
+                      <li>
+                        <strong className="text-gray-200">2. No web browsers:</strong> Runs entirely inside native terminal sessions (PowerShell, CMD, Bash) for instantaneous startup speeds.
+                      </li>
+                      <li>
+                        <strong className="text-gray-200">3. No remote cloud servers:</strong> Operates 100% locally on your computer. None of your directories, file sizes, or personal content are ever uploaded or sent over the network.
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </section>
+
+              {/* Release Changelog */}
+              <section id="changelog" className="scroll-mt-24">
+                <h2 className="text-2xl font-extrabold text-white mb-4">Release Changelog</h2>
+                <p className="text-gray-400 leading-relaxed mb-6">
+                  Track the release history and feature updates of Folder Sorter CLI.
+                </p>
+
+                <div className="space-y-8 border-l border-gray-850 pl-6 ml-2">
+                  <div className="relative">
+                    <div className="absolute -left-[31px] top-1.5 h-3 w-3 rounded-full bg-indigo-500 border border-[#030712]" />
+                    <h3 className="text-lg font-bold text-white">v1.0.3 - Vercel Hosting Migration</h3>
+                    <span className="text-xs text-gray-500 font-medium font-mono">Released: June 2026</span>
+                    <ul className="mt-3 space-y-1.5 text-sm text-gray-400 list-disc list-inside">
+                      <li>Migrated installation scripts and website hosting to Vercel</li>
+                      <li>Created a premium Next.js landing page & docs center</li>
+                      <li>Added new config command to dynamically register custom categories</li>
+                      <li>Fixed Windows 11 platform diagnostics reporting bug</li>
+                      <li>Suppressed shell-completion stderr messages during Windows setup</li>
+                    </ul>
+                  </div>
+
+                  <div className="relative">
+                    <div className="absolute -left-[31px] top-1.5 h-3 w-3 rounded-full bg-gray-600 border border-[#030712]" />
+                    <h3 className="text-lg font-bold text-gray-300">v1.0.2 - Windows Release Pipeline</h3>
+                    <span className="text-xs text-gray-500 font-medium font-mono">Released: June 2026</span>
+                    <ul className="mt-3 space-y-1.5 text-sm text-gray-400 list-disc list-inside">
+                      <li>First release pipeline targeting Windows x64 binaries</li>
+                      <li>Added lightweight, dependency-free install.ps1 script</li>
+                      <li>Enabled auto-updates check against the latest GitHub Releases</li>
+                      <li>Integrated doctor diagnostics system</li>
+                    </ul>
+                  </div>
+
+                  <div className="relative">
+                    <div className="absolute -left-[31px] top-1.5 h-3 w-3 rounded-full bg-gray-600 border border-[#030712]" />
+                    <h3 className="text-lg font-bold text-gray-300">v1.0.1 - CLI Refactor</h3>
+                    <span className="text-xs text-gray-500 font-medium font-mono">Released: May 2026</span>
+                    <ul className="mt-3 space-y-1.5 text-sm text-gray-400 list-disc list-inside">
+                      <li>Refactored Typer CLI inputs and arguments</li>
+                      <li>Polished Rich table layouts, spinners, and help texts</li>
+                      <li>Implemented transaction log undo capabilities</li>
+                    </ul>
+                  </div>
+                </div>
               </section>
 
               {/* FAQ */}

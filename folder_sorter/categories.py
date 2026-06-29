@@ -1,30 +1,13 @@
-from folder_sorter.config import *
-
-'''
-Determine which category
-a file belongs to
-'''
+from folder_sorter.config import load_config
 
 def get_category(extension):
-
+    """Determine which category a file belongs to based on its extension."""
     extension = extension.lower()
+    config_data = load_config()
+    categories = config_data.get("categories", {})
 
-    if extension in IMAGE_EXTENSIONS:
-        return "Images"
-
-    if extension in VIDEO_EXTENSIONS:
-        return "Videos"
-
-    if extension in AUDIO_EXTENSIONS:
-        return "Audio"
-
-    if extension in DOCUMENT_EXTENSIONS:
-        return "Documents"
-
-    if extension in ARCHIVE_EXTENSIONS:
-        return "Archives"
-
-    if extension in CODE_EXTENSIONS:
-        return "Code"
+    for category, extensions in categories.items():
+        if extension in extensions:
+            return category
 
     return "Others"

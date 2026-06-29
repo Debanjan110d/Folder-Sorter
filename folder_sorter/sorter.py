@@ -6,11 +6,9 @@ from rich.progress import track
 
 from folder_sorter.categories import get_category
 from folder_sorter.utils import move_file
-from folder_sorter.config import IMAGE_EXTENSIONS
+from folder_sorter.config import IMAGE_EXTENSIONS, load_config
 
 console = Console()
-
-SKIP_DIRS = {"Images", "Videos", "Audio", "Documents", "Archives", "Code", "Others"}
 
 def is_year_dir(name):
     """Check if directory name matches a year (e.g., 2024)."""
@@ -23,12 +21,16 @@ def collect_files(folder_path, recursive=False):
     if not folder.exists() or not folder.is_dir():
         return files
 
+    config_data = load_config()
+    categories = config_data.get("categories", {})
+    skip_dirs = set(categories.keys()) | {"Others"}
+
     if recursive:
         for root, dirs, filenames in os.walk(folder_path):
             # Prune directories we don't want to walk into
             dirs[:] = [
                 d for d in dirs
-                if d not in SKIP_DIRS and not is_year_dir(d)
+                if d not in skip_dirs and not is_year_dir(d)
             ]
             for filename in filenames:
                 files.append(Path(root) / filename)
