@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-06-29
+
 ### Added
 - Comprehensive test suite for config, categories, sorting, date sorting, undo, doctor, and CLI subcommands.
 - GitHub Actions CI/CD workflow running tests across OS platforms and building executables.
@@ -15,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `update` subcommand to explicitly query and upgrade the installed version.
 - `config edit` command to launch global config file inside default system text editor.
 - Automated installation scripts `install.ps1` (Windows) and `install.sh` (macOS/Linux) managing global installation, PATH configuration, and virtualenv wrapping.
+- Refactored Windows release pipeline to build and publish Windows x64 binary-only installer `install.ps1` targeting `%LOCALAPPDATA%\FolderSorter\`.
+- Commented out Linux/macOS jobs in GitHub Actions CI/CD pipeline to prepare for a stable Windows-first launch.
 
 ## [0.1.0] - 2026-06-28
 

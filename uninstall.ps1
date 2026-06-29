@@ -7,7 +7,6 @@ Write-Host "      Uninstalling Folder Sorter CLI...            " -ForegroundColo
 Write-Host "====================================================" -ForegroundColor Yellow
 
 $INSTALL_DIR = "$env:LOCALAPPDATA\FolderSorter"
-$BIN_DIR = "$INSTALL_DIR\bin"
 
 # Remove installation directory
 if (Test-Path $INSTALL_DIR) {
@@ -26,7 +25,7 @@ $Found = $false
 
 foreach ($Path in $PathSplit) {
     $Trimmed = $Path.Trim().TrimEnd('\')
-    if ($Trimmed -eq $BIN_DIR.Trim().TrimEnd('\')) {
+    if ($Trimmed -eq $INSTALL_DIR.Trim().TrimEnd('\')) {
         $Found = $true
     } elseif ($Trimmed -ne "") {
         $NewPaths += $Path
@@ -36,9 +35,9 @@ foreach ($Path in $PathSplit) {
 if ($Found) {
     $NewUserPath = $NewPaths -join ';'
     [Environment]::SetEnvironmentVariable("PATH", $NewUserPath, [EnvironmentVariableTarget]::User)
-    Write-Host "Removed $BIN_DIR from User PATH variable." -ForegroundColor Green
+    Write-Host "Removed $INSTALL_DIR from User PATH variable." -ForegroundColor Green
 } else {
-    Write-Host "No PATH entry found for $BIN_DIR."
+    Write-Host "No PATH entry found for $INSTALL_DIR."
 }
 
 Write-Host ""

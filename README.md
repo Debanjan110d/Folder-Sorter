@@ -19,9 +19,33 @@ For a detailed guide on the CLI menus, commands, config settings, and architectu
 
 ---
 
+## Platform Support
+
+```
+Windows x64      ✅ Supported
+Linux x64        🚧 Planned
+Linux ARM64      🚧 Planned
+macOS Intel      🚧 Planned
+Apple Silicon    🚧 Planned
+```
+
+---
+
 ## Installation
 
-To install Folder Sorter globally on your machine:
+### Windows (Recommended)
+
+To install Folder Sorter CLI on Windows without needing Python, Git, or pip, run the following command in PowerShell (as a normal user, no administrator permissions required):
+
+```powershell
+irm https://debanjan110d.github.io/Folder-Sorter/install.ps1 | iex
+```
+
+This command automatically downloads the latest stable Windows release, extracts the binary to `%LOCALAPPDATA%\FolderSorter\`, adds it to your user `PATH`, runs system diagnostics, and registers command autocompletions for PowerShell.
+
+### Alternative Installation (Development Mode)
+
+If you are developing or want to install from source:
 
 1. Clone or navigate to the project directory.
 2. Install the package in editable development mode (or standard mode):
@@ -31,6 +55,8 @@ pip install -e .
 ```
 
 *Note: Do not include the `$` symbol when typing commands into PowerShell.*
+
+---
 
 ## How to Run & Modes of Operation
 
@@ -140,3 +166,36 @@ folder-sorter config add Code .go
 # Remove an extension from a category
 folder-sorter config remove Code .go
 ```
+
+---
+
+## Troubleshooting
+
+### PATH Issues
+If the command `folder-sorter` is not recognized after a successful installation:
+1. **Restart your terminal:** Close all open terminal or PowerShell windows and open a new one. The path changes only load upon terminal startup.
+2. **Verify User PATH environment variable:** Ensure `%LOCALAPPDATA%\FolderSorter` is listed in your User `PATH`. You can check this by running in PowerShell:
+   ```powershell
+   [Environment]::GetEnvironmentVariable("PATH", "User")
+   ```
+
+### Antivirus False Positives
+Since the Windows executable is packaged using PyInstaller, some antivirus programs might flag it as a false positive.
+- If the installer fails to download or the binary is automatically quarantined, add an exception in your antivirus settings for the installation directory:
+  `%LOCALAPPDATA%\FolderSorter`
+
+### Installation Verification
+To verify the installation was successful and you have the correct version:
+1. Run the version command:
+   ```powershell
+   folder-sorter --version
+   ```
+2. Check that the executable is located in your local app data folder:
+   `%LOCALAPPDATA%\FolderSorter\folder-sorter.exe`
+
+### Running Diagnostics (`doctor`)
+To run a full self-diagnostic check of the environment, permissions, and dependencies, run:
+```powershell
+folder-sorter doctor
+```
+If any diagnostic checks fail, follow the suggestions printed on the screen.

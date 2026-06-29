@@ -17,7 +17,7 @@ try {
     $Tag = $ReleaseInfo.tag_name
 } catch {
     # Fallback default version
-    $Tag = "v1.0.0"
+    $Tag = "v1.0.2"
     Write-Host "Warning: Could not parse tag from GitHub API. Defaulting to $Tag." -ForegroundColor Yellow
 }
 
@@ -26,11 +26,10 @@ Write-Host "Latest release tag found: $Tag"
 Write-Host "Downloading prebuilt binary from: $AssetUrl"
 
 $INSTALL_DIR = "$env:LOCALAPPDATA\FolderSorter"
-$BIN_DIR = "$INSTALL_DIR\bin"
 
-# Create target directories
-if (!(Test-Path $BIN_DIR)) {
-    New-Item -ItemType Directory -Path $BIN_DIR | Out-Null
+# Create target directory
+if (!(Test-Path $INSTALL_DIR)) {
+    New-Item -ItemType Directory -Path $INSTALL_DIR | Out-Null
 }
 
 # Download to temp zip
@@ -47,9 +46,17 @@ try {
 # Extract binary
 Write-Host "Extracting binary..."
 try {
-    Expand-Archive -Path $TempZip -DestinationPath $BIN_DIR -Force
+    Expand-Archive -Path $TempZip -DestinationPath $INSTALL_DIR -Force
 } finally {
     if (Test-Path $TempZip) { Remove-Item $TempZip }
+}
+
+$ExecutablePath = "$INSTALL_DIR\folder-sorter.exe"
+
+# Verify installation
+if (!(Test-Path $ExecutablePath)) {
+    Write-Host "Error: Extraction failed, folder-sorter.exe not found at $ExecutablePath." -ForegroundColor Red
+    exit 1
 }
 
 # Modify User PATH Environment Variable
@@ -59,29 +66,29 @@ $PathSplit = $UserPath -split ';'
 $IsAlreadyInPath = $false
 
 foreach ($Path in $PathSplit) {
-    if ($Path.Trim().TrimEnd('\') -eq $BIN_DIR.Trim().TrimEnd('\')) {
+    if ($Path.Trim().TrimEnd('\') -eq $INSTALL_DIR.Trim().TrimEnd('\')) {
         $IsAlreadyInPath = $true
         break
     }
 }
 
 if (!$IsAlreadyInPath) {
-    Write-Host "Adding $BIN_DIR to User PATH environment..." -ForegroundColor Yellow
+    Write-Host "Adding $INSTALL_DIR to User PATH environment..." -ForegroundColor Yellow
     $NewUserPath = $UserPath
-    if (!$NewUserPath.EndsWith(';')) {
+    if ($NewUserPath -and !$NewUserPath.EndsWith(';')) {
         $NewUserPath += ";"
     }
-    $NewUserPath += $BIN_DIR
+    $NewUserPath += $INSTALL_DIR
     [Environment]::SetEnvironmentVariable("PATH", $NewUserPath, [EnvironmentVariableTarget]::User)
     
     # Update current session environment PATH
-    $env:PATH += ";$BIN_DIR"
+    $env:PATH += ";$INSTALL_DIR"
 }
 
 # Install shell completions for powershell
 Write-Host "Setting up PowerShell command autocompletions..."
 try {
-    & "$BIN_DIR\folder-sorter.exe" --install-completion powershell
+    & $ExecutablePath --install-completion powershell
 } catch {
     # Fail-safe
 }
@@ -92,7 +99,7 @@ Write-Host "====================================================" -ForegroundCol
 
 # Verify & Run diagnostics
 Write-Host "Running diagnostics check..."
-& "$BIN_DIR\folder-sorter.exe" doctor
+& $ExecutablePath doctor
 
 if (!$IsAlreadyInPath) {
     Write-Host ""

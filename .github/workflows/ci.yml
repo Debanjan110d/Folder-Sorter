@@ -75,133 +75,136 @@ jobs:
         name: windows-binary
         path: dist/folder-sorter-windows.zip
 
-  build-linux-x64:
-    name: Build Linux x64 Binary
-    needs: test
-    if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    timeout-minutes: 15
-    steps:
-    - name: Checkout Source Code
-      uses: actions/checkout@v4
-
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.11"
-
-    - name: Set Version Tag
-      run: |
-        TAG_VERSION="${GITHUB_REF_NAME#v}"
-        python3 -c "import re; content = open('folder_sorter/main.py').read(); content = re.sub(r'__version__ = \".*?\"', f'__version__ = \"$TAG_VERSION\"', content); open('folder_sorter/main.py', 'w').write(content)"
-        python3 -c "import re; content = open('pyproject.toml').read(); content = re.sub(r'version = \".*?\"', f'version = \"$TAG_VERSION\"', content); open('pyproject.toml', 'w').write(content)"
-
-    - name: Install Dependencies
-      run: |
-        python3 -m pip install --upgrade pip
-        python3 -m pip install pyinstaller
-        python3 -m pip install .
-
-    - name: Build Executable
-      run: |
-        pyinstaller --onefile --name folder-sorter folder_sorter/main.py
-
-    - name: Package Linux Binary
-      run: |
-        cd dist
-        tar -czf folder-sorter-linux.tar.gz folder-sorter
-
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: linux-x64-binary
-        path: dist/folder-sorter-linux.tar.gz
-
-  build-linux-arm64:
-    name: Build Linux ARM64 Binary
-    needs: test
-    if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    timeout-minutes: 30
-    steps:
-    - name: Checkout Source Code
-      uses: actions/checkout@v4
-
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v3
-
-    - name: Set Version Tag
-      run: |
-        TAG_VERSION="${GITHUB_REF_NAME#v}"
-        python3 -c "import re; content = open('folder_sorter/main.py').read(); content = re.sub(r'__version__ = \".*?\"', f'__version__ = \"$TAG_VERSION\"', content); open('folder_sorter/main.py', 'w').write(content)"
-        python3 -c "import re; content = open('pyproject.toml').read(); content = re.sub(r'version = \".*?\"', f'version = \"$TAG_VERSION\"', content); open('pyproject.toml', 'w').write(content)"
-
-    - name: Build ARM64 Executable via Docker QEMU
-      run: |
-        docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-        docker run --rm -v ${{ github.workspace }}:/src -w /src --platform linux/arm64 python:3.11-slim bash -c "
-          apt-get update && apt-get install -y gcc make &&
-          pip install --upgrade pip &&
-          pip install pyinstaller pillow typer rich &&
-          pip install . &&
-          pyinstaller --onefile --name folder-sorter folder_sorter/main.py &&
-          tar -czf dist/folder-sorter-linux-arm64.tar.gz -C dist folder-sorter
-        "
-
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: linux-arm64-binary
-        path: dist/folder-sorter-linux-arm64.tar.gz
-
-  build-macos:
-    name: Build macOS Binary
-    needs: test
-    if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: macos-latest
-    continue-on-error: true
-    timeout-minutes: 20
-    steps:
-    - name: Checkout Source Code
-      uses: actions/checkout@v4
-
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.11"
-
-    - name: Set Version Tag
-      run: |
-        TAG_VERSION="${GITHUB_REF_NAME#v}"
-        python3 -c "import re; content = open('folder_sorter/main.py').read(); content = re.sub(r'__version__ = \".*?\"', f'__version__ = \"$TAG_VERSION\"', content); open('folder_sorter/main.py', 'w').write(content)"
-        python3 -c "import re; content = open('pyproject.toml').read(); content = re.sub(r'version = \".*?\"', f'version = \"$TAG_VERSION\"', content); open('pyproject.toml', 'w').write(content)"
-
-    - name: Install Dependencies
-      run: |
-        python3 -m pip install --upgrade pip
-        python3 -m pip install pyinstaller
-        python3 -m pip install .
-
-    - name: Build macOS Executable
-      run: |
-        pyinstaller --onefile --name folder-sorter folder_sorter/main.py
-
-    - name: Package macOS Binary
-      run: |
-        cd dist
-        tar -czf folder-sorter-macos.tar.gz folder-sorter
-
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: macos-binary
-        path: dist/folder-sorter-macos.tar.gz
-
+# TODO: Re-enable Linux x64 build in a future release
+#   build-linux-x64:
+#     name: Build Linux x64 Binary
+#     needs: test
+#     if: startsWith(github.ref, 'refs/tags/v')
+#     runs-on: ubuntu-latest
+#     continue-on-error: true
+#     timeout-minutes: 15
+#     steps:
+#     - name: Checkout Source Code
+#       uses: actions/checkout@v4
+# 
+#     - name: Set up Python
+#       uses: actions/setup-python@v5
+#       with:
+#         python-version: "3.11"
+# 
+#     - name: Set Version Tag
+#       run: |
+#         TAG_VERSION="${GITHUB_REF_NAME#v}"
+#         python3 -c "import re; content = open('folder_sorter/main.py').read(); content = re.sub(r'__version__ = \".*?\"', f'__version__ = \"$TAG_VERSION\"', content); open('folder_sorter/main.py', 'w').write(content)"
+#         python3 -c "import re; content = open('pyproject.toml').read(); content = re.sub(r'version = \".*?\"', f'version = \"$TAG_VERSION\"', content); open('pyproject.toml', 'w').write(content)"
+# 
+#     - name: Install Dependencies
+#       run: |
+#         python3 -m pip install --upgrade pip
+#         python3 -m pip install pyinstaller
+#         python3 -m pip install .
+# 
+#     - name: Build Executable
+#       run: |
+#         pyinstaller --onefile --name folder-sorter folder_sorter/main.py
+# 
+#     - name: Package Linux Binary
+#       run: |
+#         cd dist
+#         tar -czf folder-sorter-linux.tar.gz folder-sorter
+# 
+#     - name: Upload Artifact
+#       uses: actions/upload-artifact@v4
+#       with:
+#         name: linux-x64-binary
+#         path: dist/folder-sorter-linux.tar.gz
+# 
+# # TODO: Re-enable Linux ARM64 build in a future release
+#   build-linux-arm64:
+#     name: Build Linux ARM64 Binary
+#     needs: test
+#     if: startsWith(github.ref, 'refs/tags/v')
+#     runs-on: ubuntu-latest
+#     continue-on-error: true
+#     timeout-minutes: 30
+#     steps:
+#     - name: Checkout Source Code
+#       uses: actions/checkout@v4
+# 
+#     - name: Set up QEMU
+#       uses: docker/setup-qemu-action@v3
+# 
+#     - name: Set Version Tag
+#       run: |
+#         TAG_VERSION="${GITHUB_REF_NAME#v}"
+#         python3 -c "import re; content = open('folder_sorter/main.py').read(); content = re.sub(r'__version__ = \".*?\"', f'__version__ = \"$TAG_VERSION\"', content); open('folder_sorter/main.py', 'w').write(content)"
+#         python3 -c "import re; content = open('pyproject.toml').read(); content = re.sub(r'version = \".*?\"', f'version = \"$TAG_VERSION\"', content); open('pyproject.toml', 'w').write(content)"
+# 
+#     - name: Build ARM64 Executable via Docker QEMU
+#       run: |
+#         docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+#         docker run --rm -v ${{ github.workspace }}:/src -w /src --platform linux/arm64 python:3.11-slim bash -c "
+#           apt-get update && apt-get install -y gcc make &&
+#           pip install --upgrade pip &&
+#           pip install pyinstaller pillow typer rich &&
+#           pip install . &&
+#           pyinstaller --onefile --name folder-sorter folder_sorter/main.py &&
+#           tar -czf dist/folder-sorter-linux-arm64.tar.gz -C dist folder-sorter
+#         "
+# 
+#     - name: Upload Artifact
+#       uses: actions/upload-artifact@v4
+#       with:
+#         name: linux-arm64-binary
+#         path: dist/folder-sorter-linux-arm64.tar.gz
+# 
+# # TODO: Re-enable macOS Intel and Apple Silicon builds in a future release
+#   build-macos:
+#     name: Build macOS Binary
+#     needs: test
+#     if: startsWith(github.ref, 'refs/tags/v')
+#     runs-on: macos-latest
+#     continue-on-error: true
+#     timeout-minutes: 20
+#     steps:
+#     - name: Checkout Source Code
+#       uses: actions/checkout@v4
+# 
+#     - name: Set up Python
+#       uses: actions/setup-python@v5
+#       with:
+#         python-version: "3.11"
+# 
+#     - name: Set Version Tag
+#       run: |
+#         TAG_VERSION="${GITHUB_REF_NAME#v}"
+#         python3 -c "import re; content = open('folder_sorter/main.py').read(); content = re.sub(r'__version__ = \".*?\"', f'__version__ = \"$TAG_VERSION\"', content); open('folder_sorter/main.py', 'w').write(content)"
+#         python3 -c "import re; content = open('pyproject.toml').read(); content = re.sub(r'version = \".*?\"', f'version = \"$TAG_VERSION\"', content); open('pyproject.toml', 'w').write(content)"
+# 
+#     - name: Install Dependencies
+#       run: |
+#         python3 -m pip install --upgrade pip
+#         python3 -m pip install pyinstaller
+#         python3 -m pip install .
+# 
+#     - name: Build macOS Executable
+#       run: |
+#         pyinstaller --onefile --name folder-sorter folder_sorter/main.py
+# 
+#     - name: Package macOS Binary
+#       run: |
+#         cd dist
+#         tar -czf folder-sorter-macos.tar.gz folder-sorter
+# 
+#     - name: Upload Artifact
+#       uses: actions/upload-artifact@v4
+#       with:
+#         name: macos-binary
+#         path: dist/folder-sorter-macos.tar.gz
+# 
   publish-release:
     name: Create GitHub Release
-    needs: [build-windows, build-linux-x64, build-linux-arm64, build-macos]
+    needs: [build-windows]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -220,6 +223,8 @@ jobs:
         if [ -d temp_artifacts ]; then
           find temp_artifacts -type f -exec cp {} release_assets/ \;
         fi
+        cp CHANGELOG.md release_assets/CHANGELOG.md
+        cp CHANGELOG.md release_assets/CHANGELOG
         echo "Contents of release_assets:"
         ls -la release_assets/
 

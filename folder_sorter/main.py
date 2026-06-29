@@ -18,7 +18,7 @@ from folder_sorter.undo import undo_last_sort
 from folder_sorter.doctor import run_diagnostics
 from folder_sorter.config import load_config, save_config, get_config_file
 
-__version__ = "1.0.0"
+__version__ = "1.0.2"
 
 def parse_version(version_str: str):
     """Helper to parse semantic version string into a tuple of integers."""
